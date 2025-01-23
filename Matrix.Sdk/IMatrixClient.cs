@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices.Dto.User;
 using Matrix.Sdk.Core.Domain.RoomEvent;
+using Matrix.Sdk.Core.Infrastructure.Dto.Event;
 using Matrix.Sdk.Core.Infrastructure.Dto.Sync;
 using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room;
 using Matrix.Sdk.Core.Infrastructure.Services;
@@ -35,6 +36,7 @@ namespace Matrix.Sdk
         event EventHandler<MatrixRoomEventsEventArgs> OnMatrixRoomEventsReceived;
 
         Task LoginAsync(Uri baseAddress, string user, string password, string deviceId);
+        Task LoginAsync(Uri baseAddress, string token, string? userId = null);
 
         void Start(string? nextBatch = null);
 
@@ -46,6 +48,7 @@ namespace Matrix.Sdk
 
         Task<string> SendMessageAsync(string roomId, string message);
         Task<string> SendImageAsync(string roomId, string filename, byte[] imageData);
+        Task<string> SendFileAsync(string roomId, string filename, byte[] blob);
 
         Task<List<string>> GetJoinedRoomsIdsAsync();
 
@@ -60,6 +63,9 @@ namespace Matrix.Sdk
 
         Task<string> GetString(string url);
         Task<string> GetRoomName(string id);
+        Task<EventResponse> SetRoomTopicAsync(string roomId, string topic);
+        Task<EventResponse> SetRoomNameAsync(string roomId, string name);
+        Task<EventResponse> SetRoomAvatarAsync(string roomId, string url);
         Task<MatrixProfile> GetUserProfile(string fullUserId);
         Task<byte[]> GetMxcImage(string mxcUrl);
     }
