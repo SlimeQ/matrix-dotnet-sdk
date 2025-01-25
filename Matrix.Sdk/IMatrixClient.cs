@@ -44,8 +44,8 @@ namespace Matrix.Sdk
 
         Task<JoinRoomResponse> JoinTrustedPrivateRoomAsync(string roomId);
 
-        Task<string> SendMessageAsync(string roomId, string message);
-        Task<string> SendImageAsync(string roomId, string filename, byte[] imageData);
+        Task<string> SendMessageAsync(string roomId, string message, string replyTo=null);
+        Task<string> SendImageAsync(string roomId, string filename, byte[] imageData, string replyToEventId=null);
 
         Task<List<string>> GetJoinedRoomsIdsAsync();
 
@@ -62,5 +62,6 @@ namespace Matrix.Sdk
         Task<string> GetRoomName(string id);
         Task<MatrixProfile> GetUserProfile(string fullUserId);
         Task<byte[]> GetMxcImage(string mxcUrl);
+        Task<BaseRoomEvent> GetEvent(string eventId);
     }
 }

@@ -41,10 +41,11 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
 
         public async Task<EventResponse> SendMessageAsync(string accessToken,
             string roomId, string transactionId,
-            string message, CancellationToken cancellationToken)
+            string message, string replyToEventId, CancellationToken cancellationToken)
         {
             const string eventType = "m.room.message";
             var model = new MessageEvent(MessageType.Text, message);
+            model.SetReplyTo(replyToEventId);
 
             HttpClient httpClient = CreateHttpClient(accessToken);
 
@@ -52,12 +53,27 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
 
             return await httpClient.PutAsJsonAsync<EventResponse>(path, model, cancellationToken);
         }
-        
+
+        public async Task<EventResponse> SendReactionAsync(string accessToken,
+            string roomId, string transactionId,
+            string reaction, string replyToEventId, CancellationToken cancellationToken)
+        {
+            const string eventType = "m.reaction";
+            var model = new ReactEventRequest(replyToEventId, reaction);
+
+            HttpClient httpClient = CreateHttpClient(accessToken);
+
+            var path = $"{ResourcePath}/rooms/{roomId}/send/{eventType}/{transactionId}";
+
+            return await httpClient.PutAsJsonAsync<EventResponse>(path, model, cancellationToken);
+        }
+
         public async Task<EventResponse> SendImageAsync(string accessToken,
             string roomId, string transactionId, string filename,
-            string mxcUrl, CancellationToken cancellationToken)
+            string mxcUrl, string replyToEventId, CancellationToken cancellationToken)
         {
-            var model = new ImageMessageEvent(filename, mxcUrl);
+            var model = new ImageMessageEventRequest(filename, mxcUrl);
+            model.SetReplyTo(replyToEventId);
             
             const string eventType = "m.room.message";
 
@@ -185,6 +201,14 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
                 }
             }
             return events;
+        }
+
+        public async Task<BaseRoomEvent> GetEvent(string accessToken, string eventId, CancellationToken cancellationToken)
+        {
+            var url = $"{ResourcePath}/events/{eventId}";
+            HttpClient httpClient = CreateHttpClient(accessToken);
+            var response = await httpClient.GetAsJsonAsync<RoomEventResponse>(url, cancellationToken);
+            return BaseRoomEvent.Create(response.RoomId, response);
         }
 
         public async Task<string> GetString(string accessToken, string url, CancellationToken cancellationToken)

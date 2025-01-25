@@ -1,5 +1,9 @@
 using Matrix.Sdk.Core.Infrastructure.Dto.Event;
+using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event;
+using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room;
+using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room.Messaging;
 using Newtonsoft.Json;
+using MessageType = Matrix.Sdk.Core.Infrastructure.Dto.Event.MessageType;
 
 namespace Matrix.Sdk.Core.Domain.RoomEvent
 {

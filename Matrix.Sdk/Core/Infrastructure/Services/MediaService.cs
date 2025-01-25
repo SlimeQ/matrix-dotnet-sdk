@@ -23,11 +23,11 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
         
         public async Task<string> UploadImage(string accessToken, string filename, byte[] imageData, CancellationToken cancellationToken)
         {
-            var extension = Path.GetExtension(filename);
-            if (extension != ".png")
-            {
-                throw new Exception($"only png uploads are supported: {filename}");
-            }
+            // var extension = Path.GetExtension(filename);
+            // if (extension != ".png")
+            // {
+            //     throw new Exception($"only png uploads are supported: {filename}");
+            // }
             
             string encodedFilename = HttpUtility.UrlEncode(filename);
             string url = $"{MediaPath}/upload?filename={encodedFilename}";

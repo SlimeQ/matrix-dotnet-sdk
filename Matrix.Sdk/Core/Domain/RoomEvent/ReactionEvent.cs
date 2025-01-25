@@ -1,12 +1,10 @@
 using System;
+using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event;
+using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room;
 using Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room.Messaging;
 
 namespace Matrix.Sdk.Core.Domain.RoomEvent
 {
-    using Infrastructure.Dto.Sync.Event;
-    using Infrastructure.Dto.Sync.Event.Room;
-    using Infrastructure.Dto.Sync.Event.Room.State;
-    
     public record ReactionEvent(string EventId, string RoomId, string SenderUserId, DateTimeOffset Timestamp, string Reaction, string RelatesToEventId) : BaseRoomEvent(EventId, RoomId, SenderUserId, Timestamp)
     {
 
@@ -14,8 +12,14 @@ namespace Matrix.Sdk.Core.Domain.RoomEvent
         {
             public static bool TryCreateFrom(RoomEventResponse roomEvent, string roomId, out ReactionEvent reactionEvent)
             {
+                // UI.WriteLine(JsonConvert.SerializeObject(roomEvent, new JsonSerializerSettings()
+                // {
+                //     NullValueHandling = NullValueHandling.Ignore,
+                //     Formatting = Formatting.Indented
+                // }));
+                
                 MessageContent content = roomEvent.Content.ToObject<MessageContent>();
-                if (roomEvent.EventType == EventType.Reaction && content?.relatesTo.rel_type == "m.annotation")
+                if (roomEvent.EventType == EventType.Reaction && content?.relatesTo?.rel_type == "m.annotation")
                 {
                     reactionEvent = new ReactionEvent(roomEvent.EventId, roomId, roomEvent.SenderUserId, roomEvent.Timestamp, content.relatesTo.key, content.relatesTo.event_id);
                     return true;

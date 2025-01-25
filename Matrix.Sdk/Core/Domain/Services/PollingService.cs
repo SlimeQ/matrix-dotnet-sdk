@@ -106,19 +106,19 @@ namespace Matrix.Sdk.Core.Domain.Services
                     _pollingTimer?
                         .Change(TimeSpan.FromMilliseconds(Constants.LaterSyncTimout), TimeSpan.FromMilliseconds(-1));
                 }
-
+            
                 IsSyncing = false;
                 _logger?.LogError(
-                    "Polling cancelled, _cts.IsCancellationRequested {@IsCancellationRequested}:, {@Message}",
-                    _cts.IsCancellationRequested, ex.Message);
+                    "Polling cancelled, _cts.IsCancellationRequested {@IsCancellationRequested}:, {@Exception}",
+                    _cts.IsCancellationRequested, ex.ToString());
             }
             catch (Exception ex)
             {
                 _pollingTimer?
                     .Change(TimeSpan.FromMilliseconds(Constants.LaterSyncTimout), TimeSpan.FromMilliseconds(-1));
-
+            
                 IsSyncing = false;
-                _logger?.LogError("Polling: exception occured. Message: {@Message}", ex.Message);
+                _logger?.LogError("Polling: {@Exception}", ex.ToString());
             }
         }
 

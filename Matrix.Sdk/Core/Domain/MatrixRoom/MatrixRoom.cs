@@ -11,7 +11,7 @@ namespace Matrix.Sdk.Core.Domain.Room
         {
             var joinedUserIds = new List<string>();
             foreach (RoomEventResponse timelineEvent in joinedRoom.Timeline.Events)
-                if (JoinRoomEvent.Factory.TryCreateFrom(timelineEvent, roomId, out JoinRoomEvent joinRoomEvent))
+                if (MembershipEvent.Factory.TryCreateFrom(timelineEvent, roomId, out MembershipEvent joinRoomEvent))
                     joinedUserIds.Add(joinRoomEvent!.SenderUserId);
 
             return new MatrixRoom(roomId, status, joinedUserIds);
@@ -21,8 +21,8 @@ namespace Matrix.Sdk.Core.Domain.Room
         {
             var joinedUserIds = new List<string>();
             foreach (RoomStrippedState timelineEvent in invitedRoom.InviteState.Events)
-                if (JoinRoomEvent.Factory.TryCreateFromStrippedState(timelineEvent, roomId,
-                        out JoinRoomEvent joinRoomEvent))
+                if (MembershipEvent.Factory.TryCreateFromStrippedState(timelineEvent, roomId,
+                        out MembershipEvent joinRoomEvent))
                     joinedUserIds.Add(joinRoomEvent!.SenderUserId);
 
             return new MatrixRoom(roomId, MatrixRoomStatus.Invited, joinedUserIds);

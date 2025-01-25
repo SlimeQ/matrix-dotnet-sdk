@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices.Dto.User;
+﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices.Dto.User;
 using Matrix.Sdk.Core.Domain.RoomEvent;
 
 namespace Matrix.Sdk
@@ -103,7 +104,7 @@ namespace Matrix.Sdk
 
         public async Task<CreateRoomResponse> CreateTrustedPrivateRoomAsync(string[] invitedUserIds) =>
             await _roomService.CreateRoomAsync(_accessToken!, invitedUserIds, _cts.Token);
-
+        
         public async Task<JoinRoomResponse> JoinTrustedPrivateRoomAsync(string roomId)
         {
             MatrixRoom? matrixRoom = _pollingService.GetMatrixRoom(roomId);
@@ -112,13 +113,19 @@ namespace Matrix.Sdk
 
             return await _roomService.JoinRoomAsync(_accessToken!, roomId, _cts.Token);
         }
+        
+        public async Task<RoomService.InviteResult> InviteToRoomAsync(string roomId, string invitedId)
+        {
+            
+            return await _roomService.InviteToRoomAsync(_accessToken!, UserId, roomId, invitedId, _cts.Token);
+        }
 
-        public async Task<string> SendMessageAsync(string roomId, string message)
+        public async Task<string> SendMessageAsync(string roomId, string message, string replyToEventId=null)
         {
             string transactionId = CreateTransactionId();
             
             EventResponse eventResponse = await _eventService.SendMessageAsync(_accessToken!,
-                roomId, transactionId, message, _cts.Token);
+                roomId, transactionId, message, replyToEventId, _cts.Token);
 
             if (eventResponse.EventId == null)
                 throw new NullReferenceException(nameof(eventResponse.EventId));
@@ -126,15 +133,29 @@ namespace Matrix.Sdk
             return eventResponse.EventId;
             
         }
-        
-        public async Task<string> SendImageAsync(string roomId, string filename, byte[] imageData)
+
+        public async Task<string> SendReactionAsync(string roomId, string reaction, string replyToEventId)
+        {
+            string transactionId = CreateTransactionId();
+
+            EventResponse eventResponse = await _eventService.SendReactionAsync(_accessToken!,
+                roomId, transactionId, reaction, replyToEventId, _cts.Token);
+
+            if (eventResponse.EventId == null)
+                throw new NullReferenceException(nameof(eventResponse.EventId));
+
+            return eventResponse.EventId;
+
+        }
+
+        public async Task<string> SendImageAsync(string roomId, string filename, byte[] imageData, string replyToEventId=null)
         {
             string transactionId = CreateTransactionId();
             
             var mxcUrl = await _mediaService.UploadImage(_accessToken!, filename, imageData, _cts.Token);
             
             EventResponse eventResponse = await _eventService.SendImageAsync(_accessToken!,
-                roomId, transactionId, filename, mxcUrl, _cts.Token);
+                roomId, transactionId, filename, mxcUrl, replyToEventId, _cts.Token);
 
             if (eventResponse.EventId == null)
                 throw new NullReferenceException(nameof(eventResponse.EventId));
@@ -149,6 +170,7 @@ namespace Matrix.Sdk
 
         public async Task<List<string>> GetJoinedRoomsIdsAsync()
         {
+            //UI.WriteLine($"GetJoinedRoomsIdsAsync({_accessToken!}, {_cts})");
             return await _roomService.GetJoinedRoomsAsync(_accessToken!, _cts.Token);
         }
 
@@ -208,7 +230,16 @@ namespace Matrix.Sdk
         {
             await _eventService.SendTypingSignalAsync(_accessToken!, roomId, UserId, isTyping, _cts.Token);
         }
+        public async Task<ReadOnlyCollection<string>> GetPublicRoomIds()
+        {
+            return await _roomService.GetPublicRoomIds(_accessToken!, _cts.Token);
+        }
+        public async Task<ReadOnlyCollection<RoomService.PublicRoomResponse.PublicRoom>> GetPublicRooms()
+        {
+            return await _roomService.GetPublicRooms(_accessToken!, _cts.Token);
+        }
 
+        
         public async Task<string> GetRoomName(string roomId)
         {
             return await _roomService.GetRoomNameAsync(_accessToken!, roomId, _cts.Token);
@@ -222,6 +253,11 @@ namespace Matrix.Sdk
         public async Task<byte[]> GetMxcImage(string mxcUrl)
         {
             return await _mediaService.GetMedia(_accessToken!, mxcUrl, _cts.Token);
+        }
+        
+        public async Task<BaseRoomEvent> GetEvent(string eventId)
+        {
+            return await _eventService.GetEvent(_accessToken!, eventId, _cts.Token);
         }
     }
 }
