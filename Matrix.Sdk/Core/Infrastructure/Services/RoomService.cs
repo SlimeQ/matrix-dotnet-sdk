@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices.Dto.Room.Manage;
+using Matrix.Sdk.Core.Infrastructure.Dto.Event;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -134,7 +136,49 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             var payload = JsonConvert.DeserializeObject<RoomNameResponse>(json);
             return payload.name;
         }
+        
+        public async Task<EventResponse> SetTopicAsync(string accessToken,
+            string roomId,
+            string topic, CancellationToken cancellationToken)
+        {
+            const string eventType = "m.room.topic";
+            var model = new ChangeTopicRequest(topic);
 
+            HttpClient httpClient = CreateHttpClient(accessToken);
+
+            var path = $"{ResourcePath}/rooms/{roomId}/state/{eventType}";
+            
+            return await httpClient.PutAsJsonAsync<EventResponse>(path, model, cancellationToken);
+        }
+        
+        public async Task<EventResponse> SetNameAsync(string accessToken,
+            string roomId,
+            string name, CancellationToken cancellationToken)
+        {
+            const string eventType = "m.room.name";
+            var model = new ChangeNameRequest(name);
+
+            HttpClient httpClient = CreateHttpClient(accessToken);
+
+            var path = $"{ResourcePath}/rooms/{roomId}/state/{eventType}";
+            
+            return await httpClient.PutAsJsonAsync<EventResponse>(path, model, cancellationToken);
+        }
+        
+        public async Task<EventResponse> SetAvatarAsync(string accessToken,
+            string roomId,
+            string url, CancellationToken cancellationToken)
+        {
+            const string eventType = "m.room.avatar";
+            var model = new ChangeAvatarRequest(url);
+
+            HttpClient httpClient = CreateHttpClient(accessToken);
+
+            var path = $"{ResourcePath}/rooms/{roomId}/state/{eventType}";
+            
+            return await httpClient.PutAsJsonAsync<EventResponse>(path, model, cancellationToken);
+        }
+        
         public record PublicRoomResponse
         {
             public int TotalRoomCountEstimate;
