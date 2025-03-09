@@ -34,6 +34,8 @@ namespace Matrix.Sdk.Core.Infrastructure.Dto.Sync.Event.Room.State
         [JsonProperty("membership")]
         public UserMembershipState UserMembershipState { get; init; }
 
+        public string Reason { get; init; }
+
         /// <summary>
         ///     Flag indicating if the room containing this event was created with the intention of being a direct chat.
         /// </summary>

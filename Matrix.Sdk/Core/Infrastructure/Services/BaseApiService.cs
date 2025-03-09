@@ -17,8 +17,9 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        protected virtual string ResourcePath => "_matrix/client/r0";
-        protected virtual string MediaPath => "_matrix/media/r0";
+        private string ApiVersion = "v3";
+        protected virtual string ResourcePath => $"_matrix/client/{ApiVersion}";
+        protected virtual string MediaPath => $"_matrix/media/{ApiVersion}";
 
 
         /// <summary>

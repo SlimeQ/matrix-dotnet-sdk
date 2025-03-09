@@ -26,5 +26,10 @@ namespace Matrix.Sdk
         public string? ResponseContent { get; }
 
         public HttpStatusCode StatusCode { get; }
+
+        public override string ToString()
+        {
+            return $"{Message}\n\tUri={Uri}\n\tRequestBody={RequestContent}";
+        }
     }
 }

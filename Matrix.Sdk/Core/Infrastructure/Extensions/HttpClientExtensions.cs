@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -30,14 +31,29 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             return settings;
         }
 
+        private static async Task HandleApiException(HttpResponseMessage response)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            
+            // Unhandled exception. Matrix API error. Status: TooManyRequests, json: {"errcode":"M_LIMIT_EXCEEDED","error":"Too Many Requests","retry_after_ms":133243}
+            
+            throw new ApiException(response.RequestMessage.RequestUri,
+                    null, null, response.StatusCode);
+        }
+        
         public static async Task PostAsync(this HttpClient httpClient,
             string requestUri, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = await httpClient.PostAsync(requestUri, null, cancellationToken);
+            
+            Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
+            {
+                // HandleApiException(response);
                 throw new ApiException(response.RequestMessage.RequestUri,
                     null, null, response.StatusCode);
+            }
         }
 
         // Todo: Refactor
@@ -45,17 +61,21 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
         public static async Task<TResponse> PostAsJsonAsync<TResponse>(this HttpClient httpClient,
             string requestUri, object? model, CancellationToken cancellationToken)
         {
+            
             JsonSerializerSettings settings = GetJsonSettings();
 
             string json = JsonConvert.SerializeObject(model, settings);
             var content = new StringContent(json, Encoding.Default, "application/json");
 
             HttpResponseMessage response = await httpClient.PostAsync(requestUri, content, cancellationToken);//.ConfigureAwait(false);
+            Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
             string result = await response.Content.ReadAsStringAsync();
-
+            
             if (!response.IsSuccessStatusCode)
+            {
                 throw new ApiException(response.RequestMessage.RequestUri,
                     json, result, response.StatusCode);
+            }
 
             return JsonConvert.DeserializeObject<TResponse>(result, settings)!;
         }
@@ -71,6 +91,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             var content = new StringContent(json, Encoding.Default, "application/json");
 
             HttpResponseMessage response = await httpClient.PutAsync(requestUri, content, cancellationToken);
+            Console.WriteLine($"[PUT] {requestUri} => {response.StatusCode}");
             
             string result = await response.Content.ReadAsStringAsync();
 
@@ -94,6 +115,8 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             string requestUri, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = await httpClient.GetAsync(requestUri, cancellationToken);//.ConfigureAwait(false);
+            Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
+            
             string result = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -107,6 +130,8 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             string requestUri, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = await httpClient.GetAsync(requestUri, cancellationToken);
+            Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
+            
             byte[] result = await response.Content.ReadAsByteArrayAsync();
 
             if (!response.IsSuccessStatusCode)

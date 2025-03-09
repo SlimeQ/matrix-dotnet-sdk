@@ -22,9 +22,8 @@ namespace Matrix.Sdk.Core.Domain.RoomEvent
         
         public static BaseRoomEvent Create(string roomId, RoomEventResponse timelineEvent)
         {
-            if (JoinRoomEvent.Factory.TryCreateFrom(timelineEvent, roomId, out JoinRoomEvent joinRoomEvent)) return joinRoomEvent;
+            if (MembershipEvent.Factory.TryCreateFrom(timelineEvent, roomId, out MembershipEvent joinRoomEvent)) return joinRoomEvent;
             if (CreateRoomEvent.Factory.TryCreateFrom(timelineEvent, roomId, out var createRoomEvent)) return createRoomEvent;
-            if (InviteToRoomEvent.Factory.TryCreateFrom(timelineEvent, roomId, out var inviteToRoomEvent)) return inviteToRoomEvent;
             if (TextMessageEvent.Factory.TryCreateFrom(timelineEvent, roomId, out var textMessageEvent)) return textMessageEvent;
             if (ImageMessageEvent.Factory.TryCreateFrom(timelineEvent, roomId, out var imageMessageEvent)) return imageMessageEvent;
             if (RedactionEvent.Factory.TryCreateFrom(timelineEvent, roomId, out var redactionEvent)) return redactionEvent;
@@ -49,9 +48,8 @@ namespace Matrix.Sdk.Core.Domain.RoomEvent
         
         public static BaseRoomEvent CreateFromInvited(string roomId, RoomStrippedState inviteStateEvent)
         {
-            if (JoinRoomEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var joinRoomEvent)) return joinRoomEvent;
+            if (MembershipEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var joinRoomEvent)) return joinRoomEvent;
             if (CreateRoomEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var createRoomEvent)) return createRoomEvent;
-            if (InviteToRoomEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var inviteToRoomEvent)) return inviteToRoomEvent;
             if (TextMessageEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var textMessageEvent)) return textMessageEvent;
             if (ImageMessageEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var imageMessageEvent)) return imageMessageEvent;
             if (RedactionEvent.Factory.TryCreateFromStrippedState(inviteStateEvent, roomId, out var redactionEvent)) return redactionEvent;
