@@ -39,7 +39,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
 
             if (httpClient.BaseAddress == null)
                 httpClient.BaseAddress = BaseAddress;
-
+            
             if (httpClient.Timeout != DefaultTimeout)
                 httpClient.Timeout = DefaultTimeout;
 

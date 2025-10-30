@@ -25,16 +25,16 @@ namespace Matrix.Sdk
         private readonly SingletonHttpFactory _httpClientFactory = new();
         private MatrixClient? _client;
 
-        public IMatrixClient Create(ILogger<PollingService>? logger = null)
+        public IMatrixClient Create(ILogger? logger = null)
         {
             if (_client != null)
                 return _client;
 
             var eventService = new EventService(_httpClientFactory);
-            var userService = new UserService(_httpClientFactory, logger);
+            var userService = new UserService(_httpClientFactory);
             var roomService = new RoomService(_httpClientFactory);
             var mediaService = new MediaService(_httpClientFactory);
-            var pollingService = new PollingService(eventService, logger);
+            var pollingService = new PollingService(eventService);
 
             _client = new MatrixClient(
                 pollingService,

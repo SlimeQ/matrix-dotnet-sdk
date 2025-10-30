@@ -18,6 +18,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
     {
         public EventService(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
         {
+            
         }
 
         public async Task<SyncResponse> SyncAsync(string accessToken,
@@ -158,14 +159,28 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             public string end;
         }
         
+        private HttpClient historyHttpClient;
         public async Task<List<BaseRoomEvent>> GetTimelineEventsAsync(string accessToken, string roomId, string fromEventId, Func<BaseRoomEvent, Task<bool>> stopCallback, CancellationToken cancellationToken)
         {
+            if (historyHttpClient == null)
+            {
+                var httpClientHandler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true };
+                historyHttpClient = new HttpClient(httpClientHandler);
+                
+                // this is a singleton and can't be changed, we need to use a different HttpClient
+                HttpClient defaultClient = CreateHttpClient(accessToken);
+                historyHttpClient.AddBearerToken(accessToken);
+                historyHttpClient.BaseAddress = defaultClient.BaseAddress;
+                historyHttpClient.MaxResponseContentBufferSize = defaultClient.MaxResponseContentBufferSize;
+                historyHttpClient.Timeout = TimeSpan.FromMinutes(5);
+            }
+            
             var events = new List<BaseRoomEvent>();
 
             bool hasHitFromEvent = false;
             if (fromEventId == null) hasHitFromEvent = true;
             string fromToken = null;
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var messagesToPull = 1000;
 
@@ -176,7 +191,8 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
                 }
 
                 HttpClient httpClient = CreateHttpClient(accessToken);
-                var response = await httpClient.GetAsJsonAsync<RoomMessagesResponse>(path, cancellationToken);
+                // httpClient.Timeout = TimeSpan.FromMinutes(5);
+                var response = await historyHttpClient.GetAsJsonAsync<RoomMessagesResponse>(path, cancellationToken);
 
                 foreach (var roomEvent in response.chunk)
                 {

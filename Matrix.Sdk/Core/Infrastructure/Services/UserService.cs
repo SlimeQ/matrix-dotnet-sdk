@@ -21,15 +21,20 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
     public class UserService : BaseApiService
     {
         private ILogger logger;
-        public UserService(IHttpClientFactory httpClientFactory, ILogger logger) : base(httpClientFactory)
+        public UserService(IHttpClientFactory httpClientFactory, ILogger logger=null) : base(httpClientFactory)
         {
+            if (logger == null)
+            {
+                logger = new LoggerFactory().CreateLogger<UserService>();
+            }
+            
             this.logger = logger;
         }
 
         public async Task<LoginResponse> LoginAsync(string user, string password, string deviceId,
             CancellationToken cancellationToken)
         {
-            logger.LogInformation($"LoginAsync({user}, {password}, {deviceId})");
+            logger?.LogInformation($"LoginAsync({user}, {password}, {deviceId})");
 
             var model = new LoginRequest
             (
@@ -57,11 +62,11 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
                 }
                 catch (ApiException e)
                 {
-                    logger.LogWarning(e.ToString());
+                    logger?.LogWarning(e.ToString());
                     if (e.StatusCode == (HttpStatusCode)429)
                     {
                         var err = JsonConvert.DeserializeObject<ApiErrorResponse>(e.ResponseContent);
-                        logger.LogWarning($"({i+1}/{retries}) Too many requests, waiting {err.retryAfterMs}ms before retrying");
+                        logger?.LogWarning($"({i+1}/{retries}) Too many requests, waiting {err.retryAfterMs}ms before retrying");
                         await Task.Delay(err.retryAfterMs + 10000);
                     }
                 }
@@ -69,11 +74,26 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             throw new Exception($"Failed to login {retries} times");
         }
 
-        public async Task<MatrixProfile> GetProfile(string accessToken, string userId, CancellationToken cancellationToken)
+        public async Task<MatrixProfile> GetProfile(string accessToken, string fullUserId, CancellationToken cancellationToken)
         {
             HttpClient httpClient = CreateHttpClient(accessToken);
-            var path = $"{ResourcePath}/profile/{HttpUtility.HtmlEncode($"@{userId}:{httpClient.BaseAddress.Host}")}";
+            var path = $"{ResourcePath}/profile/{HttpUtility.HtmlEncode(fullUserId)}";
             return await httpClient.GetAsJsonAsync<MatrixProfile>(path, cancellationToken);
+        }
+
+
+        public class SetDisplaynamePayload
+        {
+            public string displayname;
+        }
+        public async Task SetNickname(string accessToken, string fullUserId, string newNick, CancellationToken ctsToken)
+        {
+            HttpClient httpClient = CreateHttpClient(accessToken);
+            var path = $"{ResourcePath}/profile/{HttpUtility.HtmlEncode(fullUserId)}/displayname";
+            await httpClient.PutAsJsonAsync<object>(path, new SetDisplaynamePayload()
+            {
+                displayname = newNick
+            }, ctsToken);
         }
     }
 }

@@ -14,4 +14,9 @@ namespace System.Runtime.CompilerServices.Dto.Room.Manage
         {
             public string? url { get; } = url;
         }
+        public record ChangeRoomNickRequest(string? displayname)
+        {
+            public string? displayname { get; } = displayname;
+            public string? membership { get; } = "join";
+        }
 }

@@ -14,7 +14,7 @@ namespace Matrix.Sdk.Core.Domain.Services
     public class PollingService : IPollingService
     {
         private readonly EventService _eventService;
-        private readonly ILogger<PollingService>? _logger;
+        private readonly ILogger? _logger;
 
         private ConcurrentDictionary<string, MatrixRoom> _matrixRooms;
         private CancellationTokenSource _cts;
@@ -23,8 +23,13 @@ namespace Matrix.Sdk.Core.Domain.Services
         private Timer? _pollingTimer;
         private ulong _timeout;
 
-        public PollingService(EventService eventService, ILogger<PollingService>? logger)
+        public PollingService(EventService eventService, ILogger? logger=null)
         {
+            if (logger == null)
+            {
+                logger = new LoggerFactory().CreateLogger<PollingService>();
+            }
+            
             _eventService = eventService;
             _logger = logger;
             _timeout = Constants.FirstSyncTimout;

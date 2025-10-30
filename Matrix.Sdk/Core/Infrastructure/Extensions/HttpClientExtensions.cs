@@ -46,7 +46,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
         {
             HttpResponseMessage response = await httpClient.PostAsync(requestUri, null, cancellationToken);
             
-            Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
+            // Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -68,7 +68,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             var content = new StringContent(json, Encoding.Default, "application/json");
 
             HttpResponseMessage response = await httpClient.PostAsync(requestUri, content, cancellationToken);//.ConfigureAwait(false);
-            Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
+            // Console.WriteLine($"[POST] {requestUri} => {response.StatusCode}");
             string result = await response.Content.ReadAsStringAsync();
             
             if (!response.IsSuccessStatusCode)
@@ -91,7 +91,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             var content = new StringContent(json, Encoding.Default, "application/json");
 
             HttpResponseMessage response = await httpClient.PutAsync(requestUri, content, cancellationToken);
-            Console.WriteLine($"[PUT] {requestUri} => {response.StatusCode}");
+            // Console.WriteLine($"[PUT] {requestUri} => {response.StatusCode}");
             
             string result = await response.Content.ReadAsStringAsync();
 
@@ -115,7 +115,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             string requestUri, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = await httpClient.GetAsync(requestUri, cancellationToken);//.ConfigureAwait(false);
-            Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
+            // Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
             
             string result = await response.Content.ReadAsStringAsync();
 
@@ -130,7 +130,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Extensions
             string requestUri, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = await httpClient.GetAsync(requestUri, cancellationToken);
-            Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
+            // Console.WriteLine($"[GET] {requestUri} => {response.StatusCode}");
             
             byte[] result = await response.Content.ReadAsByteArrayAsync();
 

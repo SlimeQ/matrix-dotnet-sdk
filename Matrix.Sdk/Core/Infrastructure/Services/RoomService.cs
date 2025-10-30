@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices.Dto.Room.Manage;
+using System.Web;
 using Matrix.Sdk.Core.Infrastructure.Dto.Event;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -232,6 +233,18 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             var path = $"/{ResourcePath}/publicRooms?limit={limit}"; //&since={since}";
             HttpClient httpClient = CreateHttpClient(accessToken);
             return await httpClient.GetAsJsonAsync<PublicRoomResponse>(path, cancellationToken);
+        }
+
+        public async Task SetDisplayname(string accessToken, string roomId, string userId, string newNick, CancellationToken cancellationToken)
+        {
+            const string eventType = "m.room.member";
+            var model = new ChangeRoomNickRequest(newNick);
+
+            HttpClient httpClient = CreateHttpClient(accessToken);
+
+            var path = $"{ResourcePath}/rooms/{roomId}/state/{eventType}/{HttpUtility.UrlEncode(userId)}";
+            
+            await httpClient.PutAsJsonAsync<object>(path, model, cancellationToken);
         }
     }
 }

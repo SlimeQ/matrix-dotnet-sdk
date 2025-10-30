@@ -307,5 +307,17 @@ namespace Matrix.Sdk
         {
             return await _eventService.GetEvent(_accessToken!, eventId, _cts.Token);
         }
+
+        public async Task SetNickname(string newNick, string roomId=null)
+        {
+            if (roomId == null)
+            {
+                await _userService.SetNickname(_accessToken!, UserId, newNick, _cts.Token);
+            }
+            else
+            {
+                await _roomService.SetDisplayname(_accessToken!, roomId, UserId, newNick, _cts.Token);
+            }
+        }
     }
 }

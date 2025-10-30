@@ -24,9 +24,9 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
         public async Task<string> UploadImage(string accessToken, string filename, byte[] imageData, CancellationToken cancellationToken)
         {
             var extension = Path.GetExtension(filename);
-            if (extension != ".png")
+            if (extension != ".png" && extension != ".gif")
             {
-                throw new Exception($"only png uploads are supported: {filename}");
+                throw new Exception($"only png and gif uploads are supported: {filename}");
             }
             
             string encodedFilename = HttpUtility.UrlEncode(filename);
@@ -35,7 +35,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             HttpClient httpClient = CreateHttpClient(accessToken);
             using (var content = new ByteArrayContent(imageData))
             {
-                content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+                content.Headers.ContentType = new MediaTypeHeaderValue("image/"+extension.Substring(1));
                 content.Headers.ContentLength = imageData.Length;
                 
                 var response = await httpClient.PostAsync(url, content);
