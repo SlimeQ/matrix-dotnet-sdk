@@ -84,8 +84,18 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             var mediaServer = mxcPath.Substring(0, sep);
             var mediaId = mxcPath.Substring(sep + 1);
 
-            var path = $"{MediaPath}/download/{mediaServer}/{mediaId}?allow_redirect=true";
-            return await httpClient.GetAsBytesAsync(path, cancellationToken);
+            // Synapse authenticated media uses the client endpoint; try that first.
+            var clientPath = $"_matrix/client/v1/media/download/{mediaServer}/{mediaId}?allow_redirect=true";
+            try
+            {
+                return await httpClient.GetAsBytesAsync(clientPath, cancellationToken);
+            }
+            catch
+            {
+                // Fallback for older homeservers that still expose /_matrix/media/*.
+                var mediaPath = $"{MediaPath}/download/{mediaServer}/{mediaId}?allow_redirect=true";
+                return await httpClient.GetAsBytesAsync(mediaPath, cancellationToken);
+            }
         }
     }
 }
