@@ -72,15 +72,30 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
         public async Task<byte[]> GetMedia(string accessToken, string mxcUrl, CancellationToken cancellationToken)
         {
             HttpClient httpClient = CreateHttpClient(accessToken);
-    
-            var validMxcStart = $"mxc://{httpClient.BaseAddress.Host}/";
-            if (!mxcUrl.StartsWith(validMxcStart))
+
+            if (string.IsNullOrWhiteSpace(mxcUrl) || !mxcUrl.StartsWith("mxc://", StringComparison.OrdinalIgnoreCase))
                 throw new Exception($"Invalid mxc url: {mxcUrl}");
-    
-            var mxcId = mxcUrl.Substring(validMxcStart.Length);
-            
-            var path = $"{MediaPath}/download/{httpClient.BaseAddress.Host}/{mxcId}";
-            return await httpClient.GetAsBytesAsync(path, cancellationToken);
+
+            var mxcPath = mxcUrl.Substring("mxc://".Length);
+            var sep = mxcPath.IndexOf('/');
+            if (sep <= 0 || sep == mxcPath.Length - 1)
+                throw new Exception($"Malformed mxc url: {mxcUrl}");
+
+            var mediaServer = mxcPath.Substring(0, sep);
+            var mediaId = mxcPath.Substring(sep + 1);
+
+            // Synapse authenticated media uses the client endpoint; try that first.
+            var clientPath = $"_matrix/client/v1/media/download/{mediaServer}/{mediaId}?allow_redirect=true";
+            try
+            {
+                return await httpClient.GetAsBytesAsync(clientPath, cancellationToken);
+            }
+            catch
+            {
+                // Fallback for older homeservers that still expose /_matrix/media/*.
+                var mediaPath = $"{MediaPath}/download/{mediaServer}/{mediaId}?allow_redirect=true";
+                return await httpClient.GetAsBytesAsync(mediaPath, cancellationToken);
+            }
         }
     }
 }
