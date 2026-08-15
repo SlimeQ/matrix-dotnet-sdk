@@ -71,9 +71,9 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
 
         public async Task<EventResponse> SendImageAsync(string accessToken,
             string roomId, string transactionId, string filename,
-            string mxcUrl, string replyToEventId, CancellationToken cancellationToken)
+            string mxcUrl, ImageInfo imageInfo, string replyToEventId, CancellationToken cancellationToken)
         {
-            var model = new ImageMessageEventRequest(filename, mxcUrl);
+            var model = new ImageMessageEventRequest(filename, mxcUrl, imageInfo);
             model.SetReplyTo(replyToEventId);
             
             const string eventType = "m.room.message";

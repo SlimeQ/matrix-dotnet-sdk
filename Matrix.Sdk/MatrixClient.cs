@@ -171,11 +171,12 @@ namespace Matrix.Sdk
         public async Task<string> SendImageAsync(string roomId, string filename, byte[] imageData, string replyToEventId=null)
         {
             string transactionId = CreateTransactionId();
+            var imageInfo = ImageInfo.FromBytes(filename, imageData);
             
             var mxcUrl = await _mediaService.UploadImage(_accessToken!, filename, imageData, _cts.Token);
             
             EventResponse eventResponse = await _eventService.SendImageAsync(_accessToken!,
-                roomId, transactionId, filename, mxcUrl, replyToEventId, _cts.Token);
+                roomId, transactionId, filename, mxcUrl, imageInfo, replyToEventId, _cts.Token);
 
             if (eventResponse.EventId == null)
                 throw new NullReferenceException(nameof(eventResponse.EventId));

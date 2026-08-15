@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Matrix.Sdk.Core.Infrastructure.Dto.Event
 {
-    public record ImageMessageEventRequest(string body, string url)
+    public record ImageMessageEventRequest(string body, string url, ImageInfo info)
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public MessageType msgtype = MessageType.Image;
