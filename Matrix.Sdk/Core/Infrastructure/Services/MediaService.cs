@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Matrix.Sdk.Core.Infrastructure.Dto.Event;
 using Matrix.Sdk.Core.Infrastructure.Extensions;
 using Newtonsoft.Json;
 
@@ -23,11 +24,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
         
         public async Task<string> UploadImage(string accessToken, string filename, byte[] imageData, CancellationToken cancellationToken)
         {
-            var extension = Path.GetExtension(filename);
-            if (extension != ".png" && extension != ".gif")
-            {
-                throw new Exception($"only png and gif uploads are supported: {filename}");
-            }
+            var imageInfo = ImageInfo.FromBytes(filename, imageData);
             
             string encodedFilename = HttpUtility.UrlEncode(filename);
             string url = $"{MediaPath}/upload?filename={encodedFilename}";
@@ -35,7 +32,7 @@ namespace Matrix.Sdk.Core.Infrastructure.Services
             HttpClient httpClient = CreateHttpClient(accessToken);
             using (var content = new ByteArrayContent(imageData))
             {
-                content.Headers.ContentType = new MediaTypeHeaderValue("image/"+extension.Substring(1));
+                content.Headers.ContentType = new MediaTypeHeaderValue(imageInfo.mimetype);
                 content.Headers.ContentLength = imageData.Length;
                 
                 var response = await httpClient.PostAsync(url, content);
